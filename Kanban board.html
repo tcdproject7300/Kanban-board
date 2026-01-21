@@ -1,0 +1,393 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>PM / CM Kanban Board</title>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+
+<style>
+:root{
+    --bg:linear-gradient(135deg,#eef2ff,#fdfbff);
+    --glass:rgba(255,255,255,.75);
+    --blur:blur(14px);
+    --radius:18px;
+    --shadow-3d:0 14px 32px rgba(0,0,0,.18),
+                inset 0 1px 0 rgba(255,255,255,.6);
+    --main:#7c4dff;
+    --pm:#2979ff;
+    --cm:#ff5252;
+    --text:#2c2c2c;
+}
+
+*{box-sizing:border-box}
+
+body{
+    margin:0;
+    font-family:"Segoe UI",Roboto,sans-serif;
+    background:var(--bg);
+    color:var(--text);
+}
+
+/* HEADER */
+header{
+    background:linear-gradient(135deg,#7c4dff,#651fff);
+    color:#fff;
+    padding:22px;
+    font-size:26px;
+    font-weight:800;
+    text-align:center;
+    box-shadow:0 12px 32px rgba(0,0,0,.35);
+}
+
+/* CONTROLS */
+.controls{
+    background:var(--glass);
+    backdrop-filter:var(--blur);
+    box-shadow:var(--shadow-3d);
+    margin:18px;
+    padding:18px;
+    border-radius:var(--radius);
+    display:grid;
+    grid-template-columns:1fr;
+    gap:12px;
+}
+
+.controls input,
+.controls select{
+    padding:14px;
+    border-radius:14px;
+    border:none;
+    background:#fff;
+    box-shadow:
+        inset 0 3px 6px rgba(0,0,0,.2),
+        0 6px 14px rgba(0,0,0,.12);
+    font-size:15px;
+}
+
+.controls button{
+    padding:14px;
+    border-radius:14px;
+    border:none;
+    background:linear-gradient(135deg,#7c4dff,#9575ff);
+    color:#fff;
+    font-weight:700;
+    cursor:pointer;
+    box-shadow:0 10px 26px rgba(124,77,255,.55);
+}
+
+/* EXPORT */
+.export-bar{
+    display:flex;
+    gap:10px;
+    flex-wrap:wrap;
+}
+.export-bar button{
+    background:linear-gradient(135deg,#37474f,#263238);
+}
+
+/* BOARD */
+.board{
+    display:grid;
+    grid-template-columns:1fr;
+    gap:18px;
+    padding:18px;
+}
+
+/* COLUMN */
+.column{
+    background:var(--glass);
+    backdrop-filter:var(--blur);
+    border-radius:var(--radius);
+    box-shadow:var(--shadow-3d);
+    padding:14px;
+    min-height:260px;
+}
+
+.column h3{
+    text-align:center;
+    padding:10px;
+    border-radius:12px;
+    font-size:14px;
+    font-weight:800;
+    margin-bottom:12px;
+}
+
+.backlog h3{background:#eceff1}
+.waiting h3{background:#fff3cd}
+.todo h3{background:#e3f2fd}
+.progress-col h3{background:#ede7f6}
+.done h3{background:#e8f5e9}
+
+/* TASK */
+.task{
+    background:#fff;
+    border-radius:16px;
+    padding:14px;
+    margin-bottom:14px;
+    box-shadow:0 12px 28px rgba(0,0,0,.2);
+    cursor:grab;
+}
+.task.pm{border-left:6px solid var(--pm)}
+.task.cm{border-left:6px solid var(--cm)}
+
+.task strong{display:block}
+.task small{font-size:12px;color:#666}
+
+/* PROGRESS */
+.progress-box{
+    display:flex;
+    align-items:center;
+    gap:8px;
+    margin-top:10px;
+}
+.progress-box input{
+    width:70px;
+    text-align:center;
+    padding:8px;
+    border-radius:10px;
+    border:none;
+    box-shadow:inset 0 3px 6px rgba(0,0,0,.2);
+}
+
+/* DELETE */
+.delete-btn{
+    width:100%;
+    margin-top:10px;
+    border:none;
+    padding:8px;
+    border-radius:12px;
+    background:linear-gradient(135deg,#ff5252,#ff1744);
+    color:#fff;
+    cursor:pointer;
+}
+
+/* ===== WAITING ALERT – NEW UI ===== */
+.waiting-item{
+    background:linear-gradient(135deg,#fff8e1,#fff3cd);
+    border-left:6px solid #ff9800;
+    border-radius:18px;
+    padding:14px 16px;
+    margin-bottom:14px;
+    box-shadow:
+        0 12px 26px rgba(255,152,0,.25),
+        inset 0 1px 0 rgba(255,255,255,.7);
+    font-size:13px;
+    position:relative;
+}
+
+.waiting-item::before{
+    content:"⏰";
+    position:absolute;
+    top:-10px;
+    right:-10px;
+    background:#ff9800;
+    color:#fff;
+    width:34px;
+    height:34px;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    border-radius:50%;
+    box-shadow:0 6px 14px rgba(0,0,0,.25);
+    font-size:16px;
+}
+
+.waiting-item strong{
+    display:block;
+    font-size:14px;
+    font-weight:800;
+    margin-bottom:6px;
+}
+
+.waiting-item .date{
+    font-size:12px;
+    color:#bf360c;
+    font-weight:600;
+    margin-bottom:8px;
+}
+
+.waiting-item textarea{
+    width:100%;
+    border:none;
+    resize:none;
+    padding:10px;
+    border-radius:12px;
+    font-size:12px;
+    box-shadow:inset 0 3px 6px rgba(0,0,0,.15);
+}
+
+.waiting-item button{
+    margin-top:10px;
+    width:100%;
+    border:none;
+    padding:8px;
+    border-radius:12px;
+    font-size:12px;
+    font-weight:700;
+    background:linear-gradient(135deg,#ff5252,#ff1744);
+    color:#fff;
+    cursor:pointer;
+    box-shadow:0 6px 16px rgba(255,23,68,.4);
+}
+
+/* RESPONSIVE */
+@media(min-width:600px){
+    .controls{grid-template-columns:1fr 1fr}
+    .controls .wide{grid-column:span 2}
+    .board{grid-template-columns:repeat(2,1fr)}
+}
+@media(min-width:900px){
+    .controls{grid-template-columns:1fr 1fr 2fr auto}
+    .controls .wide{grid-column:auto}
+    .board{grid-template-columns:repeat(3,1fr)}
+}
+@media(min-width:1200px){
+    .board{grid-template-columns:repeat(5,1fr)}
+}
+</style>
+</head>
+
+<body>
+
+<header>PM / CM KANBAN BOARD</header>
+
+<div class="controls">
+    <input type="date" id="workDate">
+    <select id="workType">
+        <option value="">Type</option>
+        <option>PM</option>
+        <option>CM</option>
+    </select>
+    <input type="text" id="workTask" placeholder="Task description">
+    <button onclick="addTask()">➕ Add</button>
+
+    <div class="export-bar wide">
+        <button onclick="exportPNG()">🖼 PNG</button>
+        <button onclick="exportPDF()">📄 PDF</button>
+        <button onclick="exportExcel()">📊 Excel</button>
+    </div>
+</div>
+
+<div class="board" id="board">
+    <div class="column backlog" data-status="BACKLOG"><h3>BACKLOG</h3></div>
+    <div class="column waiting" data-status="WAITING">
+        <h3>WAITING ⏰</h3>
+        <div id="waitingList"></div>
+    </div>
+    <div class="column todo" data-status="TO-DO"><h3>TO-DO</h3></div>
+    <div class="column progress-col" data-status="IN PROGRESS"><h3>IN PROGRESS</h3></div>
+    <div class="column done" data-status="COMPLETED"><h3>COMPLETED ✔</h3></div>
+</div>
+
+<script>
+let dragged=null;
+const board=document.getElementById("board");
+const getToday=()=>new Date().toISOString().split("T")[0];
+
+function saveBoard(){localStorage.setItem("kanban",board.innerHTML)}
+function loadBoard(){const d=localStorage.getItem("kanban"); if(d){board.innerHTML=d; rebind();}}
+
+function rebind(){
+    document.querySelectorAll(".task").forEach(t=>{
+        t.draggable=true;
+        t.ondragstart=()=>dragged=t;
+    });
+    document.querySelectorAll(".column").forEach(c=>{
+        if(!c.dataset.status) return;
+        c.ondragover=e=>e.preventDefault();
+        c.ondrop=e=>{
+            e.preventDefault();
+            if(dragged){
+                c.appendChild(dragged);
+                if(c.dataset.status==="COMPLETED"){
+                    const input=dragged.querySelector("input");
+                    input.value=100;
+                    input.disabled=true;
+                }else{
+                    dragged.querySelector("input").disabled=false;
+                }
+                saveBoard(); dragged=null;
+            }
+        }
+    });
+}
+
+function addWaitingItem(title,date){
+    const div=document.createElement("div");
+    div.className="waiting-item";
+    div.innerHTML=`
+        <strong>${title}</strong>
+        <div class="date">📅 งานค้างตั้งแต่ : ${date}</div>
+        <textarea placeholder="หมายเหตุ / สาเหตุที่รอ..."></textarea>
+        <button onclick="this.parentElement.remove();saveBoard()">ลบแจ้งเตือน</button>
+    `;
+    waitingList.appendChild(div);
+    saveBoard();
+}
+
+function addTask(){
+    if(!workDate.value||!workType.value||!workTask.value) return;
+    const task=document.createElement("div");
+    task.className=`task ${workType.value.toLowerCase()}`;
+    task.innerHTML=`
+        <strong>[${workType.value}] ${workTask.value}</strong>
+        <small>${workDate.value}</small>
+        <div class="progress-box">
+            <input type="number" value="0" min="0" max="100"> %
+        </div>
+        <button class="delete-btn" onclick="this.parentElement.remove();saveBoard()">ลบ</button>
+    `;
+    const today=getToday();
+    if(new Date(workDate.value)<new Date(today)){
+        document.querySelector(".backlog").appendChild(task);
+        addWaitingItem(workTask.value,workDate.value);
+    }else if(workDate.value===today){
+        document.querySelector(".todo").appendChild(task);
+    }else{
+        document.querySelector(".backlog").appendChild(task);
+    }
+    rebind(); saveBoard(); workTask.value="";
+}
+
+function exportPNG(){
+    html2canvas(board).then(c=>{
+        const a=document.createElement("a");
+        a.href=c.toDataURL(); a.download="kanban.png"; a.click();
+    });
+}
+function exportPDF(){
+    html2canvas(board).then(c=>{
+        const pdf=new jspdf.jsPDF("l","pt","a4");
+        const w=pdf.internal.pageSize.getWidth();
+        pdf.addImage(c,"PNG",0,0,w,c.height*w/c.width);
+        pdf.save("kanban.pdf");
+    });
+}
+function exportExcel(){
+    const rows=[["Status","Type","Task","Date","Progress"]];
+    document.querySelectorAll(".column").forEach(col=>{
+        const status=col.dataset.status||"WAITING";
+        col.querySelectorAll(".task").forEach(t=>{
+            rows.push([
+                status,
+                t.classList.contains("pm")?"PM":"CM",
+                t.querySelector("strong").innerText,
+                t.querySelector("small")?.innerText||"",
+                t.querySelector("input")?.value||""
+            ]);
+        });
+    });
+    const wb=XLSX.utils.book_new();
+    XLSX.utils.book_append_sheet(wb,XLSX.utils.aoa_to_sheet(rows),"KANBAN");
+    XLSX.writeFile(wb,"kanban.xlsx");
+}
+
+loadBoard();
+</script>
+
+</body>
+</html>
