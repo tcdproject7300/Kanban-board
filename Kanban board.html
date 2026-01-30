@@ -36,6 +36,7 @@
 </script>
 
 <style>
+/* --- CSS เดิมทั้งหมด (ไม่แก้) --- */
 :root{
     --glass:rgba(255,255,255,.55);
     --blur:blur(24px);
@@ -53,148 +54,78 @@ body{
         linear-gradient(135deg,#eef2ff,#fdfbff);
     min-height:100vh;
 }
-#loginBox{
-    min-height:100vh;
-    display:flex;
-    justify-content:center;
-    align-items:center;
-}
+#loginBox{min-height:100vh;display:flex;justify-content:center;align-items:center}
 #loginBox .box{
-    background:var(--glass);
-    backdrop-filter:var(--blur);
-    padding:34px;
-    border-radius:var(--radius);
-    box-shadow:var(--shadow-soft);
-    text-align:center;
+    background:var(--glass);backdrop-filter:var(--blur);
+    padding:34px;border-radius:var(--radius);
+    box-shadow:var(--shadow-soft);text-align:center
 }
-#loginBox input{
-    padding:14px;
-    border-radius:18px;
-    border:none;
-}
+#loginBox input{padding:14px;border-radius:18px;border:none}
 #loginBox button{
-    margin-top:14px;
-    padding:12px 26px;
-    border:none;
-    border-radius:20px;
-    font-weight:700;
-    cursor:pointer;
-    background:linear-gradient(135deg,#7c4dff,#5e35ff);
-    color:#fff;
+    margin-top:14px;padding:12px 26px;border:none;
+    border-radius:20px;font-weight:700;cursor:pointer;
+    background:linear-gradient(135deg,#7c4dff,#5e35ff);color:#fff
 }
 #app{display:none}
 header{
-    margin:20px;
-    padding:26px;
-    background:var(--glass);
-    backdrop-filter:var(--blur);
-    border-radius:var(--radius);
-    box-shadow:var(--shadow-soft);
-    text-align:center;
-    font-size:26px;
-    font-weight:900;
-    position:relative;
+    margin:20px;padding:26px;background:var(--glass);
+    backdrop-filter:var(--blur);border-radius:var(--radius);
+    box-shadow:var(--shadow-soft);text-align:center;
+    font-size:26px;font-weight:900;position:relative
 }
 header button{
-    position:absolute;
-    right:24px;
-    top:24px;
-    padding:10px 20px;
-    border-radius:18px;
-    border:none;
-    background:#ff5252;
-    color:#fff;
-    cursor:pointer;
+    position:absolute;right:24px;top:24px;
+    padding:10px 20px;border-radius:18px;
+    border:none;background:#ff5252;color:#fff;cursor:pointer
 }
 .controls{
-    margin:20px;
-    padding:22px;
-    background:var(--glass);
-    backdrop-filter:var(--blur);
-    border-radius:var(--radius);
-    box-shadow:var(--shadow-soft);
-    display:grid;
-    gap:14px;
+    margin:20px;padding:22px;background:var(--glass);
+    backdrop-filter:var(--blur);border-radius:var(--radius);
+    box-shadow:var(--shadow-soft);display:grid;gap:14px
 }
-.controls input,.controls select{
-    padding:14px;
-    border-radius:18px;
-    border:none;
-}
+.controls input,.controls select{padding:14px;border-radius:18px;border:none}
 .controls button{
-    padding:14px;
-    border-radius:20px;
-    border:none;
+    padding:14px;border-radius:20px;border:none;
     background:linear-gradient(135deg,#7c4dff,#5e35ff);
-    color:#fff;
-    font-weight:800;
+    color:#fff;font-weight:800
 }
 .export-bar{display:flex;gap:12px;flex-wrap:wrap}
 .export-bar button{background:#000}
 .board{display:grid;gap:20px;padding:20px}
 .column{
-    background:var(--glass);
-    backdrop-filter:var(--blur);
-    border-radius:var(--radius);
-    padding:16px;
-    box-shadow:var(--shadow-soft);
+    background:var(--glass);backdrop-filter:var(--blur);
+    border-radius:var(--radius);padding:16px;
+    box-shadow:var(--shadow-soft)
 }
 .column h3{
-    text-align:center;
-    padding:12px;
-    border-radius:18px;
-    font-size:14px;
-    font-weight:900;
-    background:rgba(255,255,255,.6);
+    text-align:center;padding:12px;border-radius:18px;
+    font-size:14px;font-weight:900;
+    background:rgba(255,255,255,.6)
 }
 .task{
-    background:#fff;
-    border-radius:22px;
-    padding:16px;
-    margin-bottom:14px;
-    box-shadow:0 18px 40px rgba(0,0,0,.25);
-    cursor:grab;
+    background:#fff;border-radius:22px;padding:16px;
+    margin-bottom:14px;box-shadow:0 18px 40px rgba(0,0,0,.25);
+    cursor:grab
 }
 .task.pm{border-left:6px solid var(--pm)}
 .task.cm{border-left:6px solid var(--cm)}
 .task.completed{background:#eafff1}
-.progress-box input{
-    width:70px;
-    padding:8px;
-    border-radius:14px;
-    border:none;
-}
+.progress-box input{width:70px;padding:8px;border-radius:14px;border:none}
 .delete-btn{
-    width:100%;
-    margin-top:10px;
-    padding:8px;
-    border-radius:14px;
-    border:none;
-    background:#ff5252;
-    color:#fff;
+    width:100%;margin-top:10px;padding:8px;
+    border-radius:14px;border:none;background:#ff5252;color:#fff
 }
 .waiting-item{
-    background:#fff7e6;
-    border-left:6px solid #ff9800;
-    border-radius:20px;
-    padding:14px;
-    margin-bottom:12px;
+    background:#fff7e6;border-left:6px solid #ff9800;
+    border-radius:20px;padding:14px;margin-bottom:12px
 }
 .waiting-item textarea{
-    width:100%;
-    border:none;
-    border-radius:14px;
-    margin-top:10px;
-    padding:10px;
+    width:100%;border:none;border-radius:14px;
+    margin-top:10px;padding:10px
 }
 .waiting-delete{
-    width:100%;
-    margin-top:10px;
-    padding:8px;
-    border:none;
-    border-radius:14px;
-    background:#ff5252;
-    color:#fff;
+    width:100%;margin-top:10px;padding:8px;
+    border:none;border-radius:14px;background:#ff5252;color:#fff
 }
 @media(min-width:900px){
     .controls{grid-template-columns:1fr 1fr 2fr auto}
@@ -229,14 +160,23 @@ header button{
   </select>
   <input id="workTask" placeholder="Task description">
   <button onclick="addTask()">➕ Add</button>
+
+  <div class="export-bar">
+    <button onclick="exportPNG()">PNG</button>
+    <button onclick="exportPDF()">PDF</button>
+    <button onclick="exportExcel()">Excel</button>
+  </div>
 </div>
 
 <div class="board" id="board">
   <div class="column backlog" data-status="BACKLOG"><h3>BACKLOG</h3></div>
-  <div class="column waiting" data-status="WAITING"><h3>WAITING</h3><div id="waitingList"></div></div>
+  <div class="column waiting" data-status="WAITING">
+    <h3>WAITING ⏰</h3>
+    <div id="waitingList"></div>
+  </div>
   <div class="column todo" data-status="TO-DO"><h3>TO-DO</h3></div>
   <div class="column progress-col" data-status="IN PROGRESS"><h3>IN PROGRESS</h3></div>
-  <div class="column done" data-status="COMPLETED"><h3>COMPLETED</h3></div>
+  <div class="column done" data-status="COMPLETED"><h3>COMPLETED ✔</h3></div>
 </div>
 </div>
 
@@ -247,7 +187,7 @@ const app = document.getElementById("app");
 const board = document.getElementById("board");
 let dragged=null;
 
-function today(){return new Date().toISOString().split("T")[0];}
+const today=()=>new Date().toISOString().split("T")[0];
 
 function login(){
   if(!username.value) return;
@@ -267,12 +207,13 @@ if(currentUser){
   loadBoard();
 }
 
+/* ===== Firebase Save / Load ===== */
 async function saveBoard(){
   if(!currentUser) return;
-  await fb.setDoc(fb.doc(db,"kanban",currentUser),{
-    boardHTML:board.innerHTML,
-    updated:new Date()
-  });
+  await fb.setDoc(
+    fb.doc(db,"kanban",currentUser),
+    { boardHTML:board.innerHTML, updated:new Date() }
+  );
 }
 async function loadBoard(){
   if(!currentUser) return;
@@ -283,6 +224,7 @@ async function loadBoard(){
   }
 }
 
+/* ===== Logic เดิม ===== */
 function rebind(){
   document.querySelectorAll(".task").forEach(t=>{
     t.draggable=true;
@@ -296,7 +238,7 @@ function rebind(){
       c.appendChild(dragged);
       saveBoard();
       dragged=null;
-    }
+    };
   });
 }
 
@@ -313,6 +255,39 @@ function addTask(){
   workTask.value="";
   rebind();
   saveBoard();
+}
+
+/* ===== Export ===== */
+function exportPNG(){
+  html2canvas(board).then(c=>{
+    const a=document.createElement("a");
+    a.href=c.toDataURL();a.download="kanban.png";a.click();
+  });
+}
+function exportPDF(){
+  html2canvas(board).then(c=>{
+    const pdf=new jspdf.jsPDF("l","pt","a4");
+    const w=pdf.internal.pageSize.getWidth();
+    pdf.addImage(c,"PNG",0,0,w,c.height*w/c.width);
+    pdf.save("kanban.pdf");
+  });
+}
+function exportExcel(){
+  const rows=[["Status","Type","Task","Date","Progress"]];
+  document.querySelectorAll(".column").forEach(col=>{
+    col.querySelectorAll(".task").forEach(t=>{
+      rows.push([
+        col.dataset.status,
+        t.classList.contains("pm")?"PM":"CM",
+        t.querySelector("strong").innerText,
+        t.querySelector("small").innerText,
+        t.querySelector("input").value
+      ]);
+    });
+  });
+  const wb=XLSX.utils.book_new();
+  XLSX.utils.book_append_sheet(wb,XLSX.utils.aoa_to_sheet(rows),"KANBAN");
+  XLSX.writeFile(wb,"kanban.xlsx");
 }
 </script>
 
