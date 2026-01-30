@@ -3,71 +3,103 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Kanban Board</title>
+<title>Kanban</title>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
 
 <style>
+/* === (CSS เหมือนเดิมทุกประการ) === */
+:root{
+  --glass:rgba(255,255,255,.55);
+  --blur:blur(24px);
+  --radius:26px;
+  --shadow-soft:0 30px 60px rgba(0,0,0,.18);
+  --pm:#4f8cff;
+  --cm:#ff6b6b;
+}
 body{
   margin:0;
-  font-family:Segoe UI,Roboto;
-  background:linear-gradient(135deg,#e0e7ff,#f0fdfa);
+  font-family:-apple-system,"Segoe UI",Roboto;
+  background:linear-gradient(135deg,#eef2ff,#fdfbff);
 }
 #loginBox{
-  height:100vh;
+  min-height:100vh;
   display:flex;
   justify-content:center;
   align-items:center;
 }
 #loginBox .box{
-  background:#ffffffcc;
-  padding:30px;
-  border-radius:16px;
+  background:var(--glass);
+  backdrop-filter:var(--blur);
+  padding:34px;
+  border-radius:var(--radius);
+  box-shadow:var(--shadow-soft);
   text-align:center;
 }
-input{
-  padding:10px;
-  border-radius:10px;
-  border:1px solid #ccc;
-  width:220px;
-}
-button{
-  margin-top:12px;
-  padding:10px 18px;
+#loginBox input{
+  padding:14px;
+  border-radius:18px;
   border:none;
-  border-radius:10px;
-  background:#4f46e5;
-  color:#fff;
-  font-weight:700;
-  cursor:pointer;
 }
-header{
-  background:#4f46e5;
+#loginBox button{
+  margin-top:14px;
+  padding:12px 26px;
+  border:none;
+  border-radius:20px;
+  font-weight:700;
+  background:#5e35ff;
   color:#fff;
-  padding:16px;
-  display:flex;
-  justify-content:space-between;
+}
+#app{display:none}
+header{
+  margin:20px;
+  padding:26px;
+  background:var(--glass);
+  border-radius:var(--radius);
+  box-shadow:var(--shadow-soft);
+  text-align:center;
+  font-size:26px;
+  font-weight:900;
+  position:relative;
+}
+header button{
+  position:absolute;
+  right:24px;
+  top:24px;
+  background:#ff5252;
+  color:#fff;
+  border:none;
+  padding:10px 20px;
+  border-radius:18px;
 }
 .board{
   display:grid;
-  grid-template-columns:repeat(3,1fr);
-  gap:14px;
-  padding:16px;
+  grid-template-columns:repeat(5,1fr);
+  gap:20px;
+  padding:20px;
 }
 .column{
-  background:#ffffffcc;
-  border-radius:14px;
-  padding:12px;
+  background:var(--glass);
+  border-radius:var(--radius);
+  padding:16px;
 }
-.card{
-  background:#eef2ff;
-  border-radius:10px;
+.column h3{
+  text-align:center;
   padding:10px;
-  margin-bottom:8px;
+  border-radius:18px;
+  background:#ffffffaa;
 }
-.card button{
-  width:100%;
-  margin-top:6px;
-  background:#ef4444;
+.task{
+  background:#fff;
+  border-radius:20px;
+  padding:14px;
+  margin-bottom:12px;
 }
+.task.pm{border-left:6px solid var(--pm)}
+.task.cm{border-left:6px solid var(--cm)}
+.task.completed{background:#d4f8e3}
 </style>
 </head>
 
@@ -76,34 +108,24 @@ header{
 <div id="loginBox">
   <div class="box">
     <h2>เข้าสู่ระบบ</h2>
-    <input id="username" placeholder="ชื่อไซต์ / ชื่อผู้ใช้">
+    <input id="username" placeholder="ชื่อไซต์ / ผู้ใช้งาน">
     <br>
     <button onclick="login()">เข้าใช้งาน</button>
   </div>
 </div>
 
-<div id="app" style="display:none">
+<div id="app">
 <header>
-  <strong>KANBAN BOARD</strong>
-  <button onclick="logout()" style="background:#ef4444">Logout</button>
+  KANBAN BOARD
+  <button onclick="logout()">Logout</button>
 </header>
 
-<div class="board">
-  <div class="column">
-    <h3>TO DO</h3>
-    <div id="todo"></div>
-    <button onclick="addTask('todo')">➕ Add</button>
-  </div>
-  <div class="column">
-    <h3>IN PROGRESS</h3>
-    <div id="doing"></div>
-    <button onclick="addTask('doing')">➕ Add</button>
-  </div>
-  <div class="column">
-    <h3>DONE</h3>
-    <div id="done"></div>
-    <button onclick="addTask('done')">➕ Add</button>
-  </div>
+<div class="board" id="board">
+  <div class="column backlog" data-status="BACKLOG"><h3>BACKLOG</h3></div>
+  <div class="column waiting" data-status="WAITING"><h3>WAITING ⏰</h3></div>
+  <div class="column todo" data-status="TO-DO"><h3>TO-DO</h3></div>
+  <div class="column progress-col" data-status="IN PROGRESS"><h3>IN PROGRESS</h3></div>
+  <div class="column done" data-status="COMPLETED"><h3>COMPLETED ✔</h3></div>
 </div>
 </div>
 
@@ -111,7 +133,7 @@ header{
 <script type="module">
 import { initializeApp } from "https://www.gstatic.com/firebasejs/12.8.0/firebase-app.js";
 import { getDatabase, ref, get, set }
-  from "https://www.gstatic.com/firebasejs/12.8.0/firebase-database.js";
+from "https://www.gstatic.com/firebasejs/12.8.0/firebase-database.js";
 
 const firebaseConfig = {
   apiKey: "AIzaSyDn0I-ZzftCN44f1p9DZsNYS-ozyqwAj9g",
@@ -119,20 +141,19 @@ const firebaseConfig = {
   projectId: "kanban-board-b7cad"
 };
 
-const app = initializeApp(firebaseConfig);
-const db = getDatabase(app);
+const appFB = initializeApp(firebaseConfig);
+const db = getDatabase(appFB);
 
 let currentUser = localStorage.getItem("kb-user");
-let data = { todo:[], doing:[], done:[] };
+const board = document.getElementById("board");
 
 window.login = async ()=>{
-  const u = document.getElementById("username").value.trim();
-  if(!u) return;
-  currentUser = u;
-  localStorage.setItem("kb-user",u);
-  document.getElementById("loginBox").style.display="none";
-  document.getElementById("app").style.display="block";
-  await load();
+  if(!username.value) return;
+  currentUser = username.value;
+  localStorage.setItem("kb-user",currentUser);
+  loginBox.style.display="none";
+  app.style.display="block";
+  await loadBoard();
 };
 
 window.logout = ()=>{
@@ -141,48 +162,41 @@ window.logout = ()=>{
 };
 
 if(currentUser){
-  document.getElementById("loginBox").style.display="none";
-  document.getElementById("app").style.display="block";
-  load();
+  loginBox.style.display="none";
+  app.style.display="block";
+  loadBoard();
 }
 
-async function load(){
-  const snap = await get(ref(db,"kanban/"+currentUser));
-  if(snap.exists()) data = snap.val();
-  render();
-}
-
-function save(){
-  set(ref(db,"kanban/"+currentUser),data);
-}
-
-function render(){
-  ["todo","doing","done"].forEach(c=>{
-    const el=document.getElementById(c);
-    el.innerHTML="";
-    data[c].forEach((t,i)=>{
-      const d=document.createElement("div");
-      d.className="card";
-      d.innerHTML=`${t}
-        <button onclick="del('${c}',${i})">ลบ</button>`;
-      el.appendChild(d);
-    });
+async function saveBoard(){
+  await set(ref(db,"kanban/"+currentUser),{
+    html: board.innerHTML
   });
 }
 
-window.addTask = c=>{
-  const t=prompt("ชื่องาน");
-  if(!t) return;
-  data[c].push(t);
-  render();
-  save();
-};
+async function loadBoard(){
+  const snap = await get(ref(db,"kanban/"+currentUser));
+  if(snap.exists()){
+    board.innerHTML = snap.val().html;
+    rebind();
+  }
+}
 
-window.del = (c,i)=>{
-  data[c].splice(i,1);
-  render();
-  save();
-};
+function rebind(){
+  document.querySelectorAll(".task").forEach(t=>{
+    t.draggable=true;
+    t.ondragstart=()=>dragged=t;
+  });
+  document.querySelectorAll(".column").forEach(c=>{
+    c.ondragover=e=>e.preventDefault();
+    c.ondrop=e=>{
+      e.preventDefault();
+      if(!dragged) return;
+      c.appendChild(dragged);
+      saveBoard();
+      dragged=null;
+    };
+  });
+}
 </script>
 
 </body>
