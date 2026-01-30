@@ -3,206 +3,70 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Kanban</title>
-
-<script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+<title>Kanban Board</title>
 
 <style>
-:root{
-    --glass:rgba(255,255,255,.55);
-    --blur:blur(24px);
-    --radius:26px;
-    --shadow-soft:0 30px 60px rgba(0,0,0,.18);
-    --pm:#4f8cff;
-    --cm:#ff6b6b;
-}
-
 body{
-    margin:0;
-    font-family:-apple-system,"Segoe UI",Roboto;
-    background:
-        radial-gradient(circle at top left,#c7d2fe,transparent 40%),
-        radial-gradient(circle at bottom right,#a5f3fc,transparent 40%),
-        linear-gradient(135deg,#eef2ff,#fdfbff);
-    min-height:100vh;
+  margin:0;
+  font-family:Segoe UI,Roboto;
+  background:linear-gradient(135deg,#e0e7ff,#f0fdfa);
 }
-
-/* LOGIN */
 #loginBox{
-    min-height:100vh;
-    display:flex;
-    justify-content:center;
-    align-items:center;
+  height:100vh;
+  display:flex;
+  justify-content:center;
+  align-items:center;
 }
 #loginBox .box{
-    background:var(--glass);
-    backdrop-filter:var(--blur);
-    padding:34px;
-    border-radius:var(--radius);
-    box-shadow:var(--shadow-soft);
-    text-align:center;
+  background:#ffffffcc;
+  padding:30px;
+  border-radius:16px;
+  text-align:center;
 }
-#loginBox input{
-    padding:14px;
-    border-radius:18px;
-    border:none;
+input{
+  padding:10px;
+  border-radius:10px;
+  border:1px solid #ccc;
+  width:220px;
 }
-#loginBox button{
-    margin-top:14px;
-    padding:12px 26px;
-    border:none;
-    border-radius:20px;
-    font-weight:700;
-    cursor:pointer;
-    background:linear-gradient(135deg,#7c4dff,#5e35ff);
-    color:#fff;
+button{
+  margin-top:12px;
+  padding:10px 18px;
+  border:none;
+  border-radius:10px;
+  background:#4f46e5;
+  color:#fff;
+  font-weight:700;
+  cursor:pointer;
 }
-
-/* APP */
-#app{display:none}
-
 header{
-    margin:20px;
-    padding:26px;
-    background:var(--glass);
-    backdrop-filter:var(--blur);
-    border-radius:var(--radius);
-    box-shadow:var(--shadow-soft);
-    text-align:center;
-    font-size:26px;
-    font-weight:900;
-    position:relative;
+  background:#4f46e5;
+  color:#fff;
+  padding:16px;
+  display:flex;
+  justify-content:space-between;
 }
-header button{
-    position:absolute;
-    right:24px;
-    top:24px;
-    padding:10px 20px;
-    border-radius:18px;
-    border:none;
-    background:#ff5252;
-    color:#fff;
-    cursor:pointer;
-}
-
-/* CONTROLS */
-.controls{
-    margin:20px;
-    padding:22px;
-    background:var(--glass);
-    backdrop-filter:var(--blur);
-    border-radius:var(--radius);
-    box-shadow:var(--shadow-soft);
-    display:grid;
-    gap:14px;
-}
-.controls input,.controls select{
-    padding:14px;
-    border-radius:18px;
-    border:none;
-}
-.controls button{
-    padding:14px;
-    border-radius:20px;
-    border:none;
-    background:linear-gradient(135deg,#7c4dff,#5e35ff);
-    color:#fff;
-    font-weight:800;
-}
-.export-bar{display:flex;gap:12px;flex-wrap:wrap}
-.export-bar button{
-    background:linear-gradient(135deg,#263238,#000);
-}
-
-/* BOARD */
 .board{
-    display:grid;
-    gap:20px;
-    padding:20px;
+  display:grid;
+  grid-template-columns:repeat(3,1fr);
+  gap:14px;
+  padding:16px;
 }
-
 .column{
-    background:var(--glass);
-    backdrop-filter:var(--blur);
-    border-radius:var(--radius);
-    padding:16px;
-    box-shadow:var(--shadow-soft);
+  background:#ffffffcc;
+  border-radius:14px;
+  padding:12px;
 }
-.column h3{
-    text-align:center;
-    padding:12px;
-    border-radius:18px;
-    font-size:14px;
-    font-weight:900;
-    background:rgba(255,255,255,.6);
+.card{
+  background:#eef2ff;
+  border-radius:10px;
+  padding:10px;
+  margin-bottom:8px;
 }
-
-/* TASK */
-.task{
-    background:rgba(255,255,255,.9);
-    border-radius:22px;
-    padding:16px;
-    margin-bottom:14px;
-    box-shadow:0 18px 40px rgba(0,0,0,.25);
-    cursor:grab;
-}
-.task.pm{border-left:6px solid var(--pm)}
-.task.cm{border-left:6px solid var(--cm)}
-.task.completed{
-    background:linear-gradient(135deg,#eafff1,#d4f8e3);
-}
-
-.progress-box input{
-    width:70px;
-    padding:8px;
-    border-radius:14px;
-    border:none;
-}
-
-.delete-btn{
-    width:100%;
-    margin-top:10px;
-    padding:8px;
-    border-radius:14px;
-    border:none;
-    background:#ff5252;
-    color:#fff;
-}
-
-/* WAITING */
-.waiting-item{
-    background:linear-gradient(135deg,#fff7e6,#ffedc2);
-    border-left:6px solid #ff9800;
-    border-radius:20px;
-    padding:14px;
-    margin-bottom:12px;
-}
-.waiting-item textarea{
-    width:100%;
-    box-sizing:border-box;
-    border:none;
-    resize:none;
-    padding:10px 12px;
-    border-radius:14px;
-    margin-top:10px;
-    font-family:inherit;
-}
-.waiting-delete{
-    width:100%;
-    margin-top:10px;
-    padding:8px;
-    border:none;
-    border-radius:14px;
-    background:#ff5252;
-    color:#fff;
-    font-weight:700;
-}
-
-@media(min-width:900px){
-    .controls{grid-template-columns:1fr 1fr 2fr auto}
-    .board{grid-template-columns:repeat(5,1fr)}
+.card button{
+  width:100%;
+  margin-top:6px;
+  background:#ef4444;
 }
 </style>
 </head>
@@ -210,206 +74,115 @@ header button{
 <body>
 
 <div id="loginBox">
-    <div class="box">
-        <h2>เข้าสู่ระบบ</h2>
-        <input id="username" placeholder="ชื่อผู้ใช้งาน">
-        <br>
-        <button onclick="login()">เข้าใช้งาน</button>
-    </div>
+  <div class="box">
+    <h2>เข้าสู่ระบบ</h2>
+    <input id="username" placeholder="ชื่อไซต์ / ชื่อผู้ใช้">
+    <br>
+    <button onclick="login()">เข้าใช้งาน</button>
+  </div>
 </div>
 
-<div id="app">
+<div id="app" style="display:none">
 <header>
-    KANBAN BOARD
-    <button onclick="logout()">Logout</button>
+  <strong>KANBAN BOARD</strong>
+  <button onclick="logout()" style="background:#ef4444">Logout</button>
 </header>
 
-<div class="controls">
-    <input type="date" id="workDate">
-    <select id="workType">
-        <option value="">Type</option>
-        <option>PM</option>
-        <option>CM</option>
-    </select>
-    <input type="text" id="workTask" placeholder="Task description">
-    <button onclick="addTask()">➕ Add</button>
-
-    <div class="export-bar">
-        <button onclick="exportPNG()">PNG</button>
-        <button onclick="exportPDF()">PDF</button>
-        <button onclick="exportExcel()">Excel</button>
-    </div>
-</div>
-
-<div class="board" id="board">
-    <div class="column backlog" data-status="BACKLOG"><h3>BACKLOG</h3></div>
-    <div class="column waiting" data-status="WAITING">
-        <h3>WAITING ⏰</h3>
-        <div id="waitingList"></div>
-    </div>
-    <div class="column todo" data-status="TO-DO"><h3>TO-DO</h3></div>
-    <div class="column progress-col" data-status="IN PROGRESS"><h3>IN PROGRESS</h3></div>
-    <div class="column done" data-status="COMPLETED"><h3>COMPLETED ✔</h3></div>
+<div class="board">
+  <div class="column">
+    <h3>TO DO</h3>
+    <div id="todo"></div>
+    <button onclick="addTask('todo')">➕ Add</button>
+  </div>
+  <div class="column">
+    <h3>IN PROGRESS</h3>
+    <div id="doing"></div>
+    <button onclick="addTask('doing')">➕ Add</button>
+  </div>
+  <div class="column">
+    <h3>DONE</h3>
+    <div id="done"></div>
+    <button onclick="addTask('done')">➕ Add</button>
+  </div>
 </div>
 </div>
 
-<script>
+<!-- ================= FIREBASE ================= -->
+<script type="module">
+import { initializeApp } from "https://www.gstatic.com/firebasejs/12.8.0/firebase-app.js";
+import { getDatabase, ref, get, set }
+  from "https://www.gstatic.com/firebasejs/12.8.0/firebase-database.js";
+
+const firebaseConfig = {
+  apiKey: "AIzaSyDn0I-ZzftCN44f1p9DZsNYS-ozyqwAj9g",
+  databaseURL: "https://kanban-board-b7cad-default-rtdb.asia-southeast1.firebasedatabase.app",
+  projectId: "kanban-board-b7cad"
+};
+
+const app = initializeApp(firebaseConfig);
+const db = getDatabase(app);
+
 let currentUser = localStorage.getItem("kb-user");
-const loginBox = document.getElementById("loginBox");
-const app = document.getElementById("app");
-const board = document.getElementById("board");
-let dragged = null;
+let data = { todo:[], doing:[], done:[] };
 
-const key = () => `kanban-${currentUser}`;
-const today = () => new Date().toISOString().split("T")[0];
+window.login = async ()=>{
+  const u = document.getElementById("username").value.trim();
+  if(!u) return;
+  currentUser = u;
+  localStorage.setItem("kb-user",u);
+  document.getElementById("loginBox").style.display="none";
+  document.getElementById("app").style.display="block";
+  await load();
+};
 
-function login(){
-    if(!username.value) return;
-    currentUser = username.value;
-    localStorage.setItem("kb-user", currentUser);
-    loginBox.style.display = "none";
-    app.style.display = "block";
-    loadBoard();
-}
-function logout(){
-    localStorage.removeItem("kb-user");
-    location.reload();
-}
+window.logout = ()=>{
+  localStorage.removeItem("kb-user");
+  location.reload();
+};
+
 if(currentUser){
-    loginBox.style.display = "none";
-    app.style.display = "block";
+  document.getElementById("loginBox").style.display="none";
+  document.getElementById("app").style.display="block";
+  load();
 }
 
-function saveBoard(){
-    localStorage.setItem(key(), board.innerHTML);
+async function load(){
+  const snap = await get(ref(db,"kanban/"+currentUser));
+  if(snap.exists()) data = snap.val();
+  render();
 }
 
-function loadBoard(){
-    const d = localStorage.getItem(key());
-    if(d){
-        board.innerHTML = d;
-        rebind();
-    }
+function save(){
+  set(ref(db,"kanban/"+currentUser),data);
 }
 
-function rebind(){
-    document.querySelectorAll(".task").forEach(t=>{
-        t.draggable = true;
-        t.ondragstart = () => dragged = t;
+function render(){
+  ["todo","doing","done"].forEach(c=>{
+    const el=document.getElementById(c);
+    el.innerHTML="";
+    data[c].forEach((t,i)=>{
+      const d=document.createElement("div");
+      d.className="card";
+      d.innerHTML=`${t}
+        <button onclick="del('${c}',${i})">ลบ</button>`;
+      el.appendChild(d);
     });
-
-    document.querySelectorAll(".column").forEach(c=>{
-        c.ondragover = e => e.preventDefault();
-        c.ondrop = e =>{
-            e.preventDefault();
-            if(!dragged) return;
-            c.appendChild(dragged);
-            const input = dragged.querySelector("input");
-            if(c.dataset.status === "COMPLETED"){
-                input.value = 100;
-                input.disabled = true;
-                dragged.classList.add("completed");
-            }else{
-                input.disabled = false;
-                dragged.classList.remove("completed");
-            }
-            saveBoard();
-            dragged = null;
-        }
-    });
-
-    document.querySelectorAll(".waiting-item").forEach(item=>{
-        const textarea = item.querySelector("textarea");
-        if(textarea){
-            textarea.value = item.dataset.note || "";
-            textarea.oninput = () => {
-                item.dataset.note = textarea.value;
-                saveBoard();
-            };
-        }
-        item.querySelector(".waiting-delete").onclick = ()=>{
-            item.remove();
-            saveBoard();
-        };
-    });
+  });
 }
 
-function addWaitingItem(title, date){
-    const d = document.createElement("div");
-    d.className = "waiting-item";
-    d.dataset.note = "";
-    d.innerHTML = `
-        <strong>${title}</strong><br>
-        📅 ${date}
-        <textarea placeholder="หมายเหตุ"></textarea>
-        <button class="waiting-delete">ลบ</button>
-    `;
-    document.getElementById("waitingList").appendChild(d);
-    rebind();
-    saveBoard();
-}
+window.addTask = c=>{
+  const t=prompt("ชื่องาน");
+  if(!t) return;
+  data[c].push(t);
+  render();
+  save();
+};
 
-function addTask(){
-    if(!workDate.value || !workType.value || !workTask.value) return;
-
-    const t = document.createElement("div");
-    t.className = `task ${workType.value.toLowerCase()}`;
-    t.innerHTML = `
-        <strong>[${workType.value}] ${workTask.value}</strong>
-        <small>${workDate.value}</small>
-        <div class="progress-box">
-            <input type="number" value="0" min="0" max="100"> %
-        </div>
-        <button class="delete-btn" onclick="this.parentElement.remove();saveBoard()">ลบ</button>
-    `;
-
-    if(new Date(workDate.value) < new Date(today())){
-        document.querySelector(".backlog").appendChild(t);
-        addWaitingItem(workTask.value, workDate.value);
-    }else{
-        document.querySelector(".todo").appendChild(t);
-    }
-
-    workTask.value = "";
-    rebind();
-    saveBoard();
-}
-
-function exportPNG(){
-    html2canvas(board).then(c=>{
-        const a=document.createElement("a");
-        a.href=c.toDataURL();
-        a.download="kanban.png";
-        a.click();
-    });
-}
-function exportPDF(){
-    html2canvas(board).then(c=>{
-        const pdf=new jspdf.jsPDF("l","pt","a4");
-        const w=pdf.internal.pageSize.getWidth();
-        pdf.addImage(c,"PNG",0,0,w,c.height*w/c.width);
-        pdf.save("kanban.pdf");
-    });
-}
-function exportExcel(){
-    const rows=[["Status","Type","Task","Date","Progress"]];
-    document.querySelectorAll(".column").forEach(col=>{
-        col.querySelectorAll(".task").forEach(t=>{
-            rows.push([
-                col.dataset.status,
-                t.classList.contains("pm")?"PM":"CM",
-                t.querySelector("strong").innerText,
-                t.querySelector("small").innerText,
-                t.querySelector("input").value
-            ]);
-        });
-    });
-    const wb=XLSX.utils.book_new();
-    XLSX.utils.book_append_sheet(wb,XLSX.utils.aoa_to_sheet(rows),"KANBAN");
-    XLSX.writeFile(wb,"kanban.xlsx");
-}
-
-loadBoard();
+window.del = (c,i)=>{
+  data[c].splice(i,1);
+  render();
+  save();
+};
 </script>
 
 </body>
