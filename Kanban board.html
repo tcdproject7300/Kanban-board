@@ -9,7 +9,234 @@
 <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
 
-<!-- 🔥 Firebase -->
+<style>
+:root{
+    --glass:rgba(255,255,255,.55);
+    --blur:blur(24px);
+    --radius:26px;
+    --shadow-soft:0 30px 60px rgba(0,0,0,.18);
+    --pm:#4f8cff;
+    --cm:#ff6b6b;
+}
+body{
+    margin:0;
+    font-family:-apple-system,"Segoe UI",Roboto;
+    background:
+        radial-gradient(circle at top left,#c7d2fe,transparent 40%),
+        radial-gradient(circle at bottom right,#a5f3fc,transparent 40%),
+        linear-gradient(135deg,#eef2ff,#fdfbff);
+    min-height:100vh;
+}
+/* LOGIN */
+#loginBox{
+    min-height:100vh;
+    display:flex;
+    justify-content:center;
+    align-items:center;
+}
+#loginBox .box{
+    background:var(--glass);
+    backdrop-filter:var(--blur);
+    padding:34px;
+    border-radius:var(--radius);
+    box-shadow:var(--shadow-soft);
+    text-align:center;
+}
+#loginBox input{
+    padding:14px;
+    border-radius:18px;
+    border:none;
+}
+#loginBox button{
+    margin-top:14px;
+    padding:12px 26px;
+    border:none;
+    border-radius:20px;
+    font-weight:700;
+    cursor:pointer;
+    background:linear-gradient(135deg,#7c4dff,#5e35ff);
+    color:#fff;
+}
+/* APP */
+#app{display:none}
+header{
+    margin:20px;
+    padding:26px;
+    background:var(--glass);
+    backdrop-filter:var(--blur);
+    border-radius:var(--radius);
+    box-shadow:var(--shadow-soft);
+    text-align:center;
+    font-size:26px;
+    font-weight:900;
+    position:relative;
+}
+header button{
+    position:absolute;
+    right:24px;
+    top:24px;
+    padding:10px 20px;
+    border-radius:18px;
+    border:none;
+    background:#ff5252;
+    color:#fff;
+    cursor:pointer;
+}
+/* CONTROLS */
+.controls{
+    margin:20px;
+    padding:22px;
+    background:var(--glass);
+    backdrop-filter:var(--blur);
+    border-radius:var(--radius);
+    box-shadow:var(--shadow-soft);
+    display:grid;
+    gap:14px;
+}
+.controls input,.controls select{
+    padding:14px;
+    border-radius:18px;
+    border:none;
+}
+.controls button{
+    padding:14px;
+    border-radius:20px;
+    border:none;
+    background:linear-gradient(135deg,#7c4dff,#5e35ff);
+    color:#fff;
+    font-weight:800;
+}
+.export-bar{display:flex;gap:12px;flex-wrap:wrap}
+.export-bar button{
+    background:linear-gradient(135deg,#263238,#000);
+}
+/* BOARD */
+.board{
+    display:grid;
+    gap:20px;
+    padding:20px;
+}
+.column{
+    background:var(--glass);
+    backdrop-filter:var(--blur);
+    border-radius:var(--radius);
+    padding:16px;
+    box-shadow:var(--shadow-soft);
+}
+.column h3{
+    text-align:center;
+    padding:12px;
+    border-radius:18px;
+    font-size:14px;
+    font-weight:900;
+    background:rgba(255,255,255,.6);
+}
+/* TASK */
+.task{
+    background:rgba(255,255,255,.9);
+    border-radius:22px;
+    padding:16px;
+    margin-bottom:14px;
+    box-shadow:0 18px 40px rgba(0,0,0,.25);
+    cursor:grab;
+}
+.task.pm{border-left:6px solid var(--pm)}
+.task.cm{border-left:6px solid var(--cm)}
+.task.completed{
+    background:linear-gradient(135deg,#eafff1,#d4f8e3);
+}
+.progress-box input{
+    width:70px;
+    padding:8px;
+    border-radius:14px;
+    border:none;
+}
+.delete-btn{
+    width:100%;
+    margin-top:10px;
+    padding:8px;
+    border-radius:14px;
+    border:none;
+    background:#ff5252;
+    color:#fff;
+}
+/* WAITING */
+.waiting-item{
+    background:linear-gradient(135deg,#fff7e6,#ffedc2);
+    border-left:6px solid #ff9800;
+    border-radius:20px;
+    padding:14px;
+    margin-bottom:12px;
+}
+.waiting-item textarea{
+    width:100%;
+    border:none;
+    resize:none;
+    padding:10px;
+    border-radius:14px;
+}
+.waiting-delete{
+    width:100%;
+    margin-top:10px;
+    padding:8px;
+    border:none;
+    border-radius:14px;
+    background:#ff5252;
+    color:#fff;
+}
+@media(min-width:900px){
+    .controls{grid-template-columns:1fr 1fr 2fr auto}
+    .board{grid-template-columns:repeat(5,1fr)}
+}
+</style>
+</head>
+
+<body>
+
+<div id="loginBox">
+  <div class="box">
+    <h2>เข้าสู่ระบบ</h2>
+    <input id="username" placeholder="ชื่อผู้ใช้งาน">
+    <br>
+    <button onclick="login()">เข้าใช้งาน</button>
+  </div>
+</div>
+
+<div id="app">
+<header>
+  KANBAN BOARD
+  <button onclick="logout()">Logout</button>
+</header>
+
+<div class="controls">
+  <input type="date" id="workDate">
+  <select id="workType">
+    <option value="">Type</option>
+    <option>PM</option>
+    <option>CM</option>
+  </select>
+  <input type="text" id="workTask" placeholder="Task description">
+  <button onclick="addTask()">➕ Add</button>
+
+  <div class="export-bar">
+    <button onclick="exportPNG()">PNG</button>
+    <button onclick="exportPDF()">PDF</button>
+    <button onclick="exportExcel()">Excel</button>
+  </div>
+</div>
+
+<div class="board" id="board">
+  <div class="column backlog" data-status="BACKLOG"><h3>BACKLOG</h3></div>
+  <div class="column waiting" data-status="WAITING">
+    <h3>WAITING ⏰</h3>
+    <div id="waitingList"></div>
+  </div>
+  <div class="column todo" data-status="TO-DO"><h3>TO-DO</h3></div>
+  <div class="column progress-col" data-status="IN PROGRESS"><h3>IN PROGRESS</h3></div>
+  <div class="column done" data-status="COMPLETED"><h3>COMPLETED ✔</h3></div>
+</div>
+</div>
+
 <script type="module">
 import { initializeApp } from "https://www.gstatic.com/firebasejs/12.8.0/firebase-app.js";
 import { getDatabase, ref, set, onValue } from "https://www.gstatic.com/firebasejs/12.8.0/firebase-database.js";
@@ -27,173 +254,73 @@ const firebaseConfig = {
 const appFB = initializeApp(firebaseConfig);
 const db = getDatabase(appFB);
 
-/* ====== ตัวแปรเดิม ====== */
 let currentUser = null;
-const loginBox = document.getElementById("loginBox");
-const app = document.getElementById("app");
-const board = document.getElementById("board");
 let dragged = null;
-
+const board = document.getElementById("board");
 const today = () => new Date().toISOString().split("T")[0];
 const boardRef = () => ref(db, "kanban/" + currentUser);
 
-/* ====== LOGIN ====== */
 window.login = function(){
-    if(!username.value) return;
-    currentUser = username.value;
-    loginBox.style.display = "none";
-    app.style.display = "block";
-    loadBoard();
+  if(!username.value) return;
+  currentUser = username.value;
+  loginBox.style.display="none";
+  app.style.display="block";
+  loadBoard();
 }
+window.logout = ()=>location.reload();
 
-window.logout = function(){
-    location.reload();
-}
-
-/* ====== SAVE / LOAD (แทน localStorage) ====== */
 function saveBoard(){
-    if(!currentUser) return;
-    set(boardRef(), {
-        html: board.innerHTML,
-        updated: Date.now()
-    });
+  set(boardRef(),{html:board.innerHTML});
 }
-
 function loadBoard(){
-    onValue(boardRef(), snap=>{
-        if(snap.exists()){
-            board.innerHTML = snap.val().html;
-            rebind();
-        }
-    });
-}
-
-/* ====== REBIND เดิม 100% ====== */
-function rebind(){
-    document.querySelectorAll(".task").forEach(t=>{
-        t.draggable = true;
-        t.ondragstart = () => dragged = t;
-    });
-
-    document.querySelectorAll(".column").forEach(c=>{
-        c.ondragover = e => e.preventDefault();
-        c.ondrop = e =>{
-            e.preventDefault();
-            if(!dragged) return;
-            c.appendChild(dragged);
-            const input = dragged.querySelector("input");
-            if(c.dataset.status === "COMPLETED"){
-                input.value = 100;
-                input.disabled = true;
-                dragged.classList.add("completed");
-            }else{
-                input.disabled = false;
-                dragged.classList.remove("completed");
-            }
-            saveBoard();
-            dragged = null;
-        }
-    });
-
-    document.querySelectorAll(".waiting-item").forEach(item=>{
-        const textarea = item.querySelector("textarea");
-        if(textarea){
-            textarea.value = item.dataset.note || "";
-            textarea.oninput = () => {
-                item.dataset.note = textarea.value;
-                saveBoard();
-            };
-        }
-        item.querySelector(".waiting-delete").onclick = ()=>{
-            item.remove();
-            saveBoard();
-        };
-    });
-}
-
-/* ====== ADD WAITING ====== */
-function addWaitingItem(title, date){
-    const d = document.createElement("div");
-    d.className = "waiting-item";
-    d.dataset.note = "";
-    d.innerHTML = `
-        <strong>${title}</strong><br>
-        📅 ${date}
-        <textarea placeholder="หมายเหตุ"></textarea>
-        <button class="waiting-delete">ลบ</button>
-    `;
-    document.getElementById("waitingList").appendChild(d);
-    rebind();
-    saveBoard();
-}
-
-/* ====== ADD TASK ====== */
-window.addTask = function(){
-    if(!workDate.value || !workType.value || !workTask.value) return;
-
-    const t = document.createElement("div");
-    t.className = `task ${workType.value.toLowerCase()}`;
-    t.innerHTML = `
-        <strong>[${workType.value}] ${workTask.value}</strong>
-        <small>${workDate.value}</small>
-        <div class="progress-box">
-            <input type="number" value="0" min="0" max="100"> %
-        </div>
-        <button class="delete-btn" onclick="this.parentElement.remove();saveBoard()">ลบ</button>
-    `;
-
-    if(new Date(workDate.value) < new Date(today())){
-        document.querySelector(".backlog").appendChild(t);
-        addWaitingItem(workTask.value, workDate.value);
-    }else{
-        document.querySelector(".todo").appendChild(t);
+  onValue(boardRef(),snap=>{
+    if(snap.exists()){
+      board.innerHTML=snap.val().html;
+      rebind();
     }
-
-    workTask.value = "";
-    rebind();
-    saveBoard();
+  });
 }
 
-/* ====== EXPORT (เดิม) ====== */
-window.exportPNG = function(){
-    html2canvas(board).then(c=>{
-        const a=document.createElement("a");
-        a.href=c.toDataURL();
-        a.download="kanban.png";
-        a.click();
-    });
+function rebind(){
+  document.querySelectorAll(".task").forEach(t=>{
+    t.draggable=true;
+    t.ondragstart=()=>dragged=t;
+  });
+  document.querySelectorAll(".column").forEach(c=>{
+    c.ondragover=e=>e.preventDefault();
+    c.ondrop=e=>{
+      e.preventDefault();
+      c.appendChild(dragged);
+      const input=dragged.querySelector("input");
+      if(c.dataset.status==="COMPLETED"){
+        input.value=100;input.disabled=true;
+        dragged.classList.add("completed");
+      }else{
+        input.disabled=false;
+        dragged.classList.remove("completed");
+      }
+      saveBoard(); dragged=null;
+    };
+  });
 }
 
-window.exportPDF = function(){
-    html2canvas(board).then(c=>{
-        const pdf=new jspdf.jsPDF("l","pt","a4");
-        const w=pdf.internal.pageSize.getWidth();
-        pdf.addImage(c,"PNG",0,0,w,c.height*w/c.width);
-        pdf.save("kanban.pdf");
-    });
-}
-
-window.exportExcel = function(){
-    const rows=[["Status","Type","Task","Date","Progress"]];
-    document.querySelectorAll(".column").forEach(col=>{
-        col.querySelectorAll(".task").forEach(t=>{
-            rows.push([
-                col.dataset.status,
-                t.classList.contains("pm")?"PM":"CM",
-                t.querySelector("strong").innerText,
-                t.querySelector("small").innerText,
-                t.querySelector("input").value
-            ]);
-        });
-    });
-    const wb=XLSX.utils.book_new();
-    XLSX.utils.book_append_sheet(wb,XLSX.utils.aoa_to_sheet(rows),"KANBAN");
-    XLSX.writeFile(wb,"kanban.xlsx");
+window.addTask=function(){
+  if(!workDate.value||!workType.value||!workTask.value)return;
+  const t=document.createElement("div");
+  t.className=`task ${workType.value.toLowerCase()}`;
+  t.innerHTML=`
+    <strong>[${workType.value}] ${workTask.value}</strong>
+    <small>${workDate.value}</small>
+    <div class="progress-box"><input type="number" value="0"></div>
+    <button class="delete-btn" onclick="this.parentElement.remove();saveBoard()">ลบ</button>
+  `;
+  (new Date(workDate.value)<new Date(today())?
+   document.querySelector(".backlog"):
+   document.querySelector(".todo")).appendChild(t);
+  workTask.value="";
+  rebind(); saveBoard();
 }
 </script>
-</head>
 
-<body>
-<!-- BODY + CSS ใช้ของเดิมทั้งหมด -->
 </body>
 </html>
